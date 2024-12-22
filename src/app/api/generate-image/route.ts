@@ -1,16 +1,54 @@
 import { NextResponse } from "next/server";
+import { put } from "@vercel/blob";
+import crypto from "crypto";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { text } = body;
 
-    // TODO: Call your Image Generation API here
-    // For now, we'll just echo back the text
+    // const apiSecret = request.headers.get("X-Api-Key");
+
+    // if (apiSecret !== process.env.API_SECRET) {
+    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // }
+
+    // console.log(text);
+
+    const url = new URL(
+      "https://sruthij93--new-img-proj-model-generate.modal.run/"
+    );
+
+    url.searchParams.set("prompt", text);
+    console.log("Requesting URL", url.toString());
+
+    const response = await fetch(url.toString(), {
+      method: "GET",
+      headers: {
+        "X-Api-Key": process.env.API_KEY || "",
+        Accept: "image/jpeg",
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("API Response: ", errorText);
+      throw new Error(
+        `HTTP error! status: ${response.status}, message: ${errorText}`
+      );
+    }
+
+    const imageBuffer = await response.arrayBuffer();
+    const fileName = `${crypto.randomUUID()}.jpg`;
+
+    const blob = await put(fileName, imageBuffer, {
+      access: "public",
+      contentType: "image/jpeg",
+    });
 
     return NextResponse.json({
       success: true,
-      message: `Received: ${text}`,
+      imageUrl: blob.url,
     });
   } catch (error) {
     return NextResponse.json(
