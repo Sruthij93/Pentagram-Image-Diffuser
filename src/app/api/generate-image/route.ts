@@ -7,11 +7,14 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { text } = body;
 
-    // const apiSecret = request.headers.get("X-Api-Key");
+    const apiSecret = request.headers.get("X-Api-Key");
 
-    // if (apiSecret !== process.env.API_SECRET) {
-    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    // }
+    console.log("API SECRET IS: ", apiSecret);
+    console.log("API in env is :", process.env.API_KEY);
+
+    if (apiSecret !== process.env.API_KEY) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     // console.log(text);
 
