@@ -17,10 +17,11 @@ export async function POST(request: Request) {
     }
 
     // console.log(text);
-
-    const url = new URL(
-      "https://sruthij93--new-img-proj-model-generate.modal.run/"
-    );
+    const urlProtected = process.env.URL;
+    if (!urlProtected) {
+      throw new Error("URL is not defined in environment variables");
+    }
+    const url = new URL(urlProtected);
 
     url.searchParams.set("prompt", text);
     console.log("Requesting URL", url.toString());
